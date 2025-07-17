@@ -1,85 +1,45 @@
-# 전역 변수 선언
-material = ''
-diameter = 0.0
-thickness = 1.0
-area = 0.0
-weight = 0.0
+import numpy as np
 
-def sphere_area(diameter_input, material_input='유리', thickness_input=1.0):
-    global material, diameter, thickness, area, weight
+# CSV 파일에서 숫자 데이터 읽기
+arr1 = np.genfromtxt('mars_base_main_parts-001.csv', delimiter=',', skip_header=1, usecols=1)
+arr2 = np.genfromtxt('mars_base_main_parts-002.csv', delimiter=',', skip_header=1, usecols=1)
+arr3 = np.genfromtxt('mars_base_main_parts-003.csv', delimiter=',', skip_header=1, usecols=1)
 
-    try:
-        diameter = float(diameter_input)
-        if diameter <= 0:
-            print('지름은 0보다 커야 해요!')
-            return
+# 배열 합치기
+parts = np.concatenate((arr1, arr2, arr3))
 
-        thickness = float(thickness_input)
-    except ValueError:
-        print('숫자를 올바르게 입력해 주세요!')
-        return
+# 평균값 구하기
+average_strength = np.mean(parts)
 
-    # 반지름 계산
-    radius = diameter / 2
+# 평균보다 낮은 부품 강도 필터링
+low_strength_parts = parts[parts < 50]
 
-    # 반구 면적 계산
-    pi = 3.14159265359
-    area = round(2 * pi * (radius ** 2), 3)
+# 저장하기 (예외처리 포함)
+try:
+    np.savetxt('parts_to_work_on.csv', low_strength_parts, delimiter=',')
+except Exception as e:
+    print('파일 저장 중 문제가 생겼어요:', e)
+    
 
-    # 재질 밀도 (g/cm³)
-    densities = {
-        '유리': 2.4,
-        '알루미늄': 2.7,
-        '탄소강': 7.85
-    }
+# 보너스 과제
 
-    if material_input not in densities:
-        print('지원되지 않는 재질입니다. 유리, 알루미늄, 탄소강 중 하나를 입력하세요.')
-        return
+try:
+    # CSV 파일 읽기
+    parts2 = np.genfromtxt('parts_to_work_on.csv', delimiter=',')
 
-    material = material_input
+    # 전치 행렬 만들기 (1행으로 펼치기)
+    parts2 = np.genfromtxt('parts_to_work_on.csv', delimiter=',')
+    parts2 = parts2.reshape(-1, 1)  # 1열로 바꾸기
+    parts3 = parts2.T               # transpose 사용
+    
 
-    # 면적 cm²로 변환 (m² → cm²)
-    area_cm2 = area * 10000
+    # 출력
+    print('\n전체 평균 강도:', average_strength)
+    print('\n보강이 필요한 부품 강도 목록:')
+    print(low_strength_parts)
 
-    # 무게 계산 (g)
-    weight_g = area_cm2 * thickness * densities[material]
+    print('\n전치 행렬 결과:')
+    print(parts3)
 
-    # 화성 중력 적용 (kg 단위로 변환)
-    weight = round((weight_g / 1000) * 0.38, 3)
-
-    # 결과 출력
-    print(f'재질 =⇒ {material}, 지름 =⇒ {diameter}m, 두께 =⇒ {thickness}cm, 면적 =⇒ {area}m², 무게 =⇒ {weight}kg')
-
-# 반복 실행
-while True:
-    d = input('지름을 입력하세요 (m) [종료하려면 "exit" 입력]: ')
-    if d.strip().lower() == 'exit':
-        print('프로그램을 종료합니다.')
-        break
-
-    # 지름이 숫자인지 확인
-    try:
-        float(d)
-    except ValueError:
-        print('지름은 숫자여야 해요!')
-        continue
-
-    m = input('재질을 입력하세요 (유리, 알루미늄, 탄소강): ')
-    if m.strip().lower() == 'exit':
-        print('프로그램을 종료합니다.')
-        break
-
-    t = input('두께를 입력하세요 (cm, 기본 1): ')
-    if t.strip().lower() == 'exit':
-        print('프로그램을 종료합니다.')
-        break
-
-    # 두께가 숫자인지 확인
-    try:
-        float(t if t else 1.0)
-    except ValueError:
-        print('두께는 숫자여야 해요!')
-        continue
-
-    sphere_area(d, m if m else '유리', t if t else 1.0)
+except Exception as e:
+    print('보너스 과제 처리 중 오류가 발생했어요:', e)
