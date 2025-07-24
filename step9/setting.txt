@@ -1,0 +1,1 @@
+["Operating System", "OS Version", "CPU Type", "CPU Core Count", "Memory Size", "CPU Load (%)", "Memory Usage (%)", "Temperature"]
